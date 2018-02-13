@@ -37,7 +37,7 @@ class Shape(object):
     point_size = 8
     scale = 1.0
 
-    def __init__(self, label=None, line_color=None,difficult = False):
+    def __init__(self, label=None, line_color=None, difficult=False):
         self.label = label
         self.points = []
         self.fill = False
@@ -167,6 +167,12 @@ class Shape(object):
 
     def moveVertexBy(self, i, offset):
         self.points[i] = self.points[i] + offset
+
+    def scaleTest(self, ds=5):
+        self.moveVertexBy(0, QPointF(-ds, -ds))
+        self.moveVertexBy(1, QPointF(ds, -ds))
+        self.moveVertexBy(2, QPointF(ds, ds))
+        self.moveVertexBy(3, QPointF(-ds, ds))
 
     def highlightVertex(self, i, action):
         self._highlightIndex = i

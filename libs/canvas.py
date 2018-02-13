@@ -7,11 +7,11 @@ except ImportError:
     from PyQt4.QtGui import *
     from PyQt4.QtCore import *
 
-#from PyQt4.QtOpenGL import *
+# from PyQt4.QtOpenGL import *
 
 from libs.shape import Shape
 from libs.lib import distance
-
+import math
 CURSOR_DEFAULT = Qt.ArrowCursor
 CURSOR_POINT = Qt.PointingHandCursor
 CURSOR_DRAW = Qt.CrossCursor
@@ -42,7 +42,7 @@ class Canvas(QWidget):
         self.selectedShape = None  # save the selected shape here
         self.selectedShapeCopy = None
         self.drawingLineColor = QColor(0, 0, 255)
-        self.drawingRectColor = QColor(0, 0, 255) 
+        self.drawingRectColor = QColor(0, 0, 255)
         self.line = Shape(line_color=self.drawingLineColor)
         self.prevPoint = QPointF()
         self.offsets = QPointF(), QPointF()
@@ -232,8 +232,8 @@ class Canvas(QWidget):
     def endMove(self, copy=False):
         assert self.selectedShape and self.selectedShapeCopy
         shape = self.selectedShapeCopy
-        #del shape.fill_color
-        #del shape.line_color
+        # del shape.fill_color
+        # del shape.line_color
         if copy:
             self.shapes.append(shape)
             self.selectedShape.selected = False
@@ -350,7 +350,7 @@ class Canvas(QWidget):
         # relative to the shape, but also results in making it
         # a bit "shaky" when nearing the border and allows it to
         # go outside of the shape's area for some reason. XXX
-        #self.calculateOffsets(self.selectedShape, pos)
+        # self.calculateOffsets(self.selectedShape, pos)
         dp = pos - self.prevPoint
         if dp:
             shape.moveBy(dp)
@@ -480,8 +480,8 @@ class Canvas(QWidget):
         self.update()
 
     def closeEnough(self, p1, p2):
-        #d = distance(p1 - p2)
-        #m = (p1-p2).manhattanLength()
+        # d = distance(p1 - p2)
+        # m = (p1-p2).manhattanLength()
         # print "d %.2f, m %d, %.2f" % (d, m, d - m)
         return distance(p1 - p2) < self.epsilon
 
@@ -558,11 +558,19 @@ class Canvas(QWidget):
             v_delta = delta.y()
 
         mods = ev.modifiers()
+
         if Qt.ControlModifier == int(mods) and v_delta:
             self.zoomRequest.emit(v_delta)
         else:
             v_delta and self.scrollRequest.emit(v_delta, Qt.Vertical)
             h_delta and self.scrollRequest.emit(h_delta, Qt.Horizontal)
+
+            if self.hShape is not None:
+                print("EVENT", ev.angleDelta().x(), ev.angleDelta().y())
+                self.hShape.scaleTest(ds=2.0 * math.fabs(ev.angleDelta().y()) / ev.angleDelta().y())
+                self.shapeMoved.emit()
+                self.repaint()
+                print(self.hShape)
         ev.accept()
 
     def keyPressEvent(self, ev):
@@ -613,15 +621,15 @@ class Canvas(QWidget):
         self.repaint()
 
     def moveOutOfBound(self, step):
-        points = [p1+p2 for p1, p2 in zip(self.selectedShape.points, [step]*4)]
+        points = [p1 + p2 for p1, p2 in zip(self.selectedShape.points, [step] * 4)]
         return True in map(self.outOfPixmap, points)
 
-    def setLastLabel(self, text, line_color  = None, fill_color = None):
+    def setLastLabel(self, text, line_color=None, fill_color=None):
         assert text
         self.shapes[-1].label = text
         if line_color:
             self.shapes[-1].line_color = line_color
-        
+
         if fill_color:
             self.shapes[-1].fill_color = fill_color
 
