@@ -1,5 +1,2 @@
-apple
-pear
-plum
-peach
-banana
+clam
+scrap

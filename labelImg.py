@@ -112,6 +112,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.screencast = "https://youtu.be/p0nR2YsCY_U"
 
         # Load predefined classes to the list
+        print("LOADING CLASSES:",defaultPrefdefClassFile)
         self.loadPredefinedClasses(defaultPrefdefClassFile)
 
         # Main widgets and related state.
